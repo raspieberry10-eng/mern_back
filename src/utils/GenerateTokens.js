@@ -15,8 +15,8 @@ export const generateToken = (payload) =>{
             console.log(401, "GenerateToken : Payload is empty or not defined type");
         }  
 
-        const accessToken = jwt.sign(payload, process.env.JWT_SECRET,{
-            expiresIn : "365d"
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: "10m"
         });
 
         
