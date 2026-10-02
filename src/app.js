@@ -33,10 +33,12 @@ app.use(cookieParser());
 
 import authrouter from "./routes/auth_routes.js";
 import doctorrouter from "./routes/doctor_routes.js";
+import specialityRouter from "./routes/speciality_routes.js";
 import appointmentRouter from "./routes/appointment_routes.js";
 import messageRouter from "./routes/messages_routes.js";
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/appointments", appointmentRouter);
 app.use("/api/v1/auth", authrouter);
 app.use("/api/v1/doctors", doctorrouter);
+app.use("/api/v1/specialities", specialityRouter);
 export default app;
