@@ -50,7 +50,7 @@ const signupSchema = joi
       .min(8)
       .max(20)
       .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$"))
-      .required()
+      .when("is_social", { is: 1, then: joi.optional(), otherwise: joi.required() })
       .messages({
         "string.pattern.base":
           "Password must be at least 8 characters long and include one capital letter, one small letter, one number, and one symbol.",
@@ -80,7 +80,7 @@ const loginSchema = joi
       .min(8)
       .max(20)
       .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$"))
-      .required()
+      .when("is_social", { is: 1, then: joi.optional(), otherwise: joi.required() })
       .messages({
         "string.pattern.base":
           "Password must be at least 8 characters long and include one capital letter, one small letter, one number, and one symbol.",

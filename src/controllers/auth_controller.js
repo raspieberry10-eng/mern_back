@@ -36,16 +36,16 @@ if(user)
     .status(402)
     .json( new ApiResponse(402, "SignUp : User already exists"));
 }
-const hashedPassword = await hashPassword(password);
+const hashedPassword = is_social === 1 ? null : await hashPassword(password);
 const newuser = await prisma.user.create(
     {
        data:
        {
         user_name:name,
         user_email:email,
-        user_password:hashedPassword,
+        user_password:is_social === 1 ? null : hashedPassword,
         user_issocial:is_social,
-        user_isverify:0,
+        user_isverify:is_social === 1 ? 1 : 0,
     
         user_createdat: new Date(now())
     } 
@@ -66,6 +66,25 @@ if(!currentuser)
     return res
     .status(401)
     .json(new ApiResponse(401, "SignUp : User not created"));
+}
+
+if(is_social === 1)
+{
+    currentuser.accesstoken = accessToken;
+    await prisma.loginstatus.create(
+        {
+            data:
+            {
+                loginstatus_isactive:1,
+                loginstatus_createdat: new Date(now()),
+                user_user_id:newuser?.user_id
+            }
+        }
+    );
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json(new ApiResponse(200, "SignUp : User created successfully", currentuser));
 }
 
 const otp = generateOTP();
@@ -241,6 +260,35 @@ export const login = asyncHandler(async(req, res)=>
              
             }));
         }
+        if(is_social === 1)
+        {
+            if(user.user_issocial !== 1)
+            {
+                return res.status(401).json(new ApiResponse(401, "Login : User is not social"));
+            }
+
+            const { accessToken } = generateToken(user);
+            await prisma.loginstatus.updateMany(
+                {
+                    where:
+                    {
+                        user_user_id:user.user_id
+                    },
+                    data:
+                    {
+                        loginstatus_isactive:1,
+                        loginstatus_modifiedat: new Date(now())
+                    }
+                }
+            );
+            user.accesstoken = accessToken;
+
+            return res
+            .status(200)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .json(new ApiResponse(200, "Login : You are successfully logined", user));
+        }
+
         if(user.user_issocial===is_social)
             {
             
